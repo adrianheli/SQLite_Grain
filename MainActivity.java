@@ -1,37 +1,38 @@
-package com.example.graindetection;
+package com.example.graindetectdb;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
-import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String DATABASE_NAME = "grain_db";
+    private Database grain_db;
 
-    private DatabaseHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        db = new DatabaseHelper(this);
-        DataObject dataObject1 = new DataObject(1, 123, 222, 123, 123, 133,
-                123,1334, 1234, 233);
-        DataObject dataObject2 = new DataObject(1, 123, 222, 123, 123, 133,
-                1423);
-        DataObject dataObject3 = new DataObject(2, 134 , 134, 134,333,11, 235);
+        grain_db = Room.databaseBuilder(getApplicationContext(),
+                Database.class, DATABASE_NAME).allowMainThreadQueries().fallbackToDestructiveMigration().build();
 
-        //db.addDataObjectHSV(dataObject2);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HSV one = new HSV();
+                one.setHue_higher_B("134");
+                one.setHue_lower_B("1134");
+                one.setSaturation_higher_B("3445");
+                one.setSaturation_lower_B("334555");
+                one.setValue_higher_B("9987");
+                one.setValue_lower_B("5555");
+                grain_db.hsvDao().insertOnlyOne(one);
 
+                System.out.println(one.getSaturation_higher_B());
+            }
+        }).start();
 
-        List<DataObject> data = db.allDataHOG();
-        List<DataObject> data1 = db.allDataHSV();
-        for(DataObject obj : data1){
-            obj.get_All_Info_HSV();
-        }
 
     }
-
 
 }
